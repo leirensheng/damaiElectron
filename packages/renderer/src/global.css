@@ -1,0 +1,16 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+*::-webkit-scrollbar {
+  width: 5px;
+}
+*::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: #e8e8e8;
+}
+
+html {
+  height: 100vh;
+}/*# sourceMappingURL=global.css.map */
