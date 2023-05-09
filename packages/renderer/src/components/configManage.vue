@@ -317,7 +317,7 @@ export default {
         },
         {
           id: 'activityName',
-          minWidth: 200,
+          minWidth: 100,
           name: 'show',
           valueType: 'slot',
           support: {
@@ -357,6 +357,8 @@ export default {
           id: 'phone',
           name: 'phone',
           required: true,
+          width:90,
+
           support: {
             add: {},
             query: {},
@@ -366,6 +368,8 @@ export default {
         {
           id: 'password',
           name: 'password',
+          width:10,
+          isShow: false,
           required: true,
           support: {
             add: {},
@@ -664,9 +668,13 @@ export default {
           type: 'warning',
         });
       }
-      let fileData = await this.getConfigFile();
-      delete fileData[obj.username];
-      await writeFile('config.json', JSON.stringify(fileData, null, 4));
+       await new Promise(r => {
+        cmd(`npm run remove  ${obj.username}`, data => {
+          if (data === 'done') {
+            r();
+          }
+        });
+      });
       await this.getList();
     },
     async getConfigFile() {

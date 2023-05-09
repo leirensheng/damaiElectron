@@ -23,10 +23,8 @@ import SearchActivity from '/@/components/searchActivity.vue';
 import ConfigManage from '/@/components/configManage.vue';
 import CheckMapManage from '/@/components/checkMapManage.vue';
 import OrderPage from '/@/components/orderPage.vue';
-import CheckFileManage from '/@/components/checkFileManage.vue';
 import LocalConfig from '/@/components/localConfig.vue';
 import RemoteConfig from '/@/components/remoteConfig.vue';
-import CheckMany from '/@/components/checkMany.vue';
 
 import {getIp} from './utils/index.js';
 import {useStore} from '/@/store/global';
@@ -38,10 +36,8 @@ export default {
     CheckMapManage,
     ConfigManage,
     OrderPage,
-    CheckFileManage,
     RemoteConfig,
     LocalConfig,
-    CheckMany,
   },
   setup() {
     let store = useStore();
@@ -72,23 +68,13 @@ export default {
           name: 'OrderPage',
           title: '订单页',
         },
-        {
-          name: 'CheckFileManage',
-          title: '文件清理',
-        },
+ 
 
         {
           name: 'remoteConfig',
           title: '远程配置',
         },
-        {
-          name: 'checkMany',
-          title: '检测多个',
-        },
-        {
-          name: 'onlyTest',
-          title: '测试',
-        },
+ 
       ],
     };
   },
