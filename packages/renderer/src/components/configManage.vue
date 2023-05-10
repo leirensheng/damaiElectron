@@ -622,8 +622,8 @@ export default {
     },
     async handlerAdd(val) {
       let obj = {...val};
-      if(obj.showOrders){
-        obj.orders = obj.showOrders.split(',').map(one=> Number(one));
+      if(obj.showOrders!==undefined){
+        obj.orders = String(obj.showOrders).split(',').map(one=> Number(one));
         delete obj.showOrders;
       }
       await this.updateFile({key: val.username, val:obj, isAdd: true});
