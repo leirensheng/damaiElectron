@@ -68,8 +68,8 @@ export default {
   },
   computed: {
     title() {
-      let {showTime, curShowName} = this.config;
-      return `${this.runningCmd || this.cmd}__${curShowName}__${showTime}`;
+      let {showTime, activityName} = this.config;
+      return `${this.runningCmd || this.cmd}__${activityName}__${showTime}`;
     },
     isRunning() {
       return !!this.runningCmd;

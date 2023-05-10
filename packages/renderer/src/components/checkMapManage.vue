@@ -126,7 +126,7 @@ export default {
         },
 
         {
-          id: 'curShowName',
+          id: 'activityName',
           name: '名称',
           minWidth: 200,
           support: {
@@ -249,7 +249,7 @@ export default {
       return form;
     },
     async remove(obj) {
-      await ElMessageBox.confirm(`确定删除【${obj.curShowName}】?`, '提示', {
+      await ElMessageBox.confirm(`确定删除【${obj.activityName}】?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
