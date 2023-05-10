@@ -384,6 +384,9 @@ export default {
           valueType: 'slot',
           options: [],
           support: {
+            query:{
+              type:'input',
+            },
             edit: {
               // type:'radio',
               type: 'multipleSelect',
