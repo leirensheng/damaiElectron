@@ -321,7 +321,6 @@ export default {
           username,
           ...one,
           config: one,
-          targetTypes: Object.keys(one.typeMap || []),
         }));
 
         let items = queryItems.filter(item => item.value);
