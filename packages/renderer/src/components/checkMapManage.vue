@@ -11,7 +11,7 @@
       :table-btns-config="tableBtnsConfig"
       :on-dialog-open="onDialogOpen"
     >
-      <template #onlyMonitorType="{row}">
+      <template #onlyMonitorType="{ row }">
         <el-tag
           v-for="(item, i) in row.onlyMonitorType"
           :key="item"
@@ -45,17 +45,17 @@
 </template>
 
 <script>
-import {readFile, cmd, writeFile} from '#preload';
-import {ElMessageBox} from 'element-plus';
-import {useStore} from '/@/store/global';
+import { readFile, cmd, writeFile } from '#preload';
+import { ElMessageBox } from 'element-plus';
+import { useStore } from '/@/store/global';
 
 export default {
   components: {
-    
+
   },
   setup() {
     let store = useStore();
-    let {pidInfo} = store;
+    let { pidInfo } = store;
     return {
       pidInfo,
     };
@@ -99,7 +99,7 @@ export default {
   },
   computed: {
     title() {
-      let {activityName, port} = this.curRow || {};
+      let { activityName, port } = this.curRow || {};
       return `npm run check ${port}_${activityName}`;
     },
 
@@ -112,9 +112,10 @@ export default {
           support: {
             query: {},
             add: {},
+            edit: {},
           },
         },
-      
+
         {
           id: 'activityId',
           name: 'activityId',
@@ -133,9 +134,6 @@ export default {
             query: {},
           },
         },
-
-    
-    
         {
           id: 'waitForTime',
           name: '开抢时间',
@@ -211,13 +209,13 @@ export default {
       });
     },
     async updateLoopType(loopTicketType) {
-      let obj = {...this.curRow, loopTicketType};
-      await this.updateFile({key: this.curRow.port, val: obj});
+      let obj = { ...this.curRow, loopTicketType };
+      await this.updateFile({ key: this.curRow.port, val: obj });
     },
     async handlerAdd(val) {
-      let obj = {...val};
+      let obj = { ...val };
       try {
-        await this.updateFile({key: val.port, val: obj, isAdd: true});
+        await this.updateFile({ key: val.port, val: obj, isAdd: true });
         await this.runOne(val.port);
         await this.$refs.table.getList();
       } catch (e) {
@@ -225,17 +223,27 @@ export default {
       }
     },
     async handleEdit(val) {
-      let noSaveFields = ['ticketTypes','skuIdToTypeMap','status','cmd','color'];
-      noSaveFields.forEach(one=>{
+      let noSaveFields = ['ticketTypes', 'skuIdToTypeMap', 'status', 'cmd', 'color'];
+      noSaveFields.forEach(one => {
         delete val[one];
       });
       await this.updateFile({
-        key: val.port,
+        key: this.oldPort,
         val: val,
       });
+      if (val.port !== this.oldPort) {
+        let fileData = await this.getCheckFile();
+        if (fileData[val.port]) {
+          throw new Error('已经有了' + val.port);
+        } else {
+          fileData[val.port] = fileData[this.oldPort];
+          delete fileData[this.oldPort];
+          await writeFile('checkMap.json', JSON.stringify(fileData, null, 4));
+        }
+      }
       await this.$refs.table.getList();
     },
-    async updateFile({key, val, isAdd}) {
+    async updateFile({ key, val, isAdd }) {
       let fileData = await this.getCheckFile();
       if (isAdd && fileData[key] !== undefined) {
         throw new Error('已经有了' + key);
@@ -245,7 +253,8 @@ export default {
     },
     async onDialogOpen(form) {
       let target = this.items.find(one => one.id === 'onlyMonitorType');
-      target.options = (form.ticketTypes || []).map(one => ({id: one, name: one}));
+      target.options = (form.ticketTypes || []).map(one => ({ id: one, name: one }));
+      this.oldPort = form.port;
       return form;
     },
     async remove(obj) {
@@ -268,12 +277,12 @@ export default {
     },
 
 
-    async getData({queryItems}) {
+    async getData({ queryItems }) {
       let obj = await this.getCheckFile();
       let data = Object.values(obj);
       let items = queryItems.filter(item => item.value);
       data = data.filter(one => {
-        return items.every(({value, column}) => String(one[column]).indexOf(value) !== -1);
+        return items.every(({ value, column }) => String(one[column]).indexOf(value) !== -1);
       });
 
       let cmds = Object.keys(this.pidInfo);
