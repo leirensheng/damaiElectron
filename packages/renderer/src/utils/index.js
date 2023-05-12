@@ -54,7 +54,7 @@ let getIp = async () => {
   }
 };
 
-let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成', isFromRemote) => {
+let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成') => {
   return new Promise((resolve, reject) => {
     const socketURL = 'ws://127.0.0.1:5000/socket/';
     axios
@@ -67,15 +67,11 @@ let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成', isFromRemote)
           if (data.includes(successMsg)) {
             ws.close();
             resolve({pid});
-          } else if (data.includes('需要登陆') || data.includes('at ')) {
+          } else if (data.includes('不正确') || data.includes('at')) {
             //报错会出现at
             ws.close();
-            if(isFromRemote){
-              resolve({pid,msg:'需要登录, 请远程登录'});
-            }else{
-              axios.get('http://127.0.0.1:5000/close/' + pid);
-              reject(new Error(cmd + '需要登录或报错'));
-            }
+            axios.get('http://127.0.0.1:5000/close/' + pid);
+            reject(new Error(cmd + '账号密码不正确'));
           }
         };
         ws.onopen = () => {
@@ -100,12 +96,4 @@ let sleep = time =>
     setTimeout(r, time);
   });
 
-
-export {
-  getRunningCheck,
-  getRunningUser,
-  getIp,
-  startCmdWithPidInfo,
-  sleep,
-  stopCmd,
-};
+export {getRunningCheck, getRunningUser, getIp, startCmdWithPidInfo, sleep, stopCmd};
