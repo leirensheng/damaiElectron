@@ -452,7 +452,7 @@ export default {
   computed: {
     title() {
       let {activityName, username,targetTypes} = this.curRow || {};
-      return `${username}__${activityName}_${targetTypes.join('_')}`;
+      return `${username}__${activityName}_${targetTypes?.join('_')}`;
     },
   },
   watch: {
