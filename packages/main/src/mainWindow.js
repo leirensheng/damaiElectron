@@ -1,5 +1,5 @@
 import {app, BrowserWindow} from 'electron';
-import {join} from 'path';
+import {join, resolve} from 'path';
 import {URL} from 'url';
 import axios from 'axios';
 
@@ -20,6 +20,9 @@ async function createWindow() {
       preload: join(app.getAppPath(), 'packages/preload/dist/index.cjs'),
     },
   });
+
+  // console.log(__dirname);
+  browserWindow.setIcon(resolve(__dirname, '../src/1.ico'));
 
   /**
    * If the 'show' property of the BrowserWindow's constructor is omitted from the initialization options,
