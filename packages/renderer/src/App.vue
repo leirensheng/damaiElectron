@@ -103,6 +103,7 @@ export default {
 }
 
 .app {
+  background: rgb(15, 19, 32);
   height: 100vh;
   padding: 10px;
   display: flex;
