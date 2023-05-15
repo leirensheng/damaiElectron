@@ -34,7 +34,6 @@
         v-if="dialogVisible"
         class="terminal-warp"
       >
-        {{ curRow.cmd }}
         <cmd-terminal2
           :cmd="curRow.cmd"
           @exit="exit"
