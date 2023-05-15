@@ -1,17 +1,39 @@
-const shell = require('shelljs');
+const {exec} = require('child_process');
 
-export function cmd(str, cb) {
-  let val = 'cd ../damai &&' + str;
-  var child = shell.exec(val, {async: true, silent: true});
-  if (cb) {
-    child.stdout.on('data', cb);
-    child.stderr.on('data', cb);
-    child.stdout.on('end', () => {
-      cb('done');
+let cmd = ({cmd, successStr, failStr, isSuccessStop}) =>
+  new Promise((resolve, reject) => {
+    let data = '';
+    let child = exec(cmd);
+    child.stdout.on('data', cur => {
+      data += cur;
+      if (data.includes(failStr)) {
+        reject();
+      } else if (data.includes(successStr)) {
+        resolve();
+        if (isSuccessStop) {
+          cmd('taskkill /T /F /PID ' + child.pid);
+        }
+      }
+    });
+    child.stderr.on('data', data => {
+      console.log(data);
+      reject();
+    });
+  });
+
+let startServer = async () => {
+  try {
+    await cmd({
+      cmd: 'pm2 restart damai',
+      failStr: "doesn't exist",
+      successStr: 'Applying action restartProcessId on app',
+      isSuccessStop: false,
+    });
+  } catch (e) {
+    await cmd({
+      cmd: 'cd ../damaiServer && pm2 start damai',
     });
   }
-  child.close = () => {
-    cmd('taskkill /T /F /PID ' + child.pid);
-  };
-  return child;
-}
+};
+
+export {startServer};
