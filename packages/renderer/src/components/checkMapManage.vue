@@ -196,7 +196,7 @@ export default {
       return new Promise((resolve, reject) => {
         let str = `npm run check ${port}`;
         let child = cmd(str, data => {
-          if (data.includes('开始进行')) {
+          if (data.includes('检查完成')) {
             child.close();
             resolve();
           }
