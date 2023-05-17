@@ -67,7 +67,7 @@ let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成') => {
           if (data.includes(successMsg)) {
             ws.close();
             resolve({pid});
-          } else if (data.includes('不正确') || data.includes('at ')) {
+          } else if (data.includes('不正确') || data.includes('at ')|| data.includes('主动退出进程')) {
             //报错会出现at
             ws.close();
             axios.get('http://127.0.0.1:5000/close/' + pid);
