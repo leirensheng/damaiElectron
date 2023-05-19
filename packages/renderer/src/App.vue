@@ -46,7 +46,7 @@ export default {
   },
   data() {
     return {
-      activeName: 'CheckMany',
+      activeName: 'ConfigManage',
       tabs: [
         {
           name: 'SearchActivity',
