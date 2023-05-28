@@ -67,11 +67,13 @@ let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成') => {
           if (data.includes(successMsg)) {
             ws.close();
             resolve({pid});
-          } else if (data.includes('不正确') || data.includes('at ')|| data.includes('主动退出进程')) {
-            //报错会出现at
-            ws.close();
-            axios.get('http://127.0.0.1:5000/close/' + pid);
-            reject(new Error(cmd + '账号密码不正确'));
+          } else {
+            let res = data.match(/不正确|目标没对|目标为空|没有填写/);
+            if (res) {
+              ws.close();
+              axios.get('http://127.0.0.1:5000/close/' + pid);
+              reject(new Error(cmd + res[0]));
+            }
           }
         };
         ws.onopen = () => {

@@ -63,6 +63,7 @@ class MySocket {
             isSuccess = true;
             eventBus.emit('getUserList');
           } catch (e) {
+            msg = e.message;
             console.log(e);
           }
           this.socket.send(JSON.stringify({
