@@ -600,7 +600,8 @@ export default {
     },
     cmdCopy(value, username, phone, password) {
       return new Promise(r => {
-        cmd(`npm run add ${value} ${username} ${phone} ${password}`, data => {
+        let val =`npm run add ${value} ${true} ${username}-${phone}-${password}-${''}-${''}-${0}`; 
+        cmd(val, data => {
           if (data === 'done') {
             r();
           }
