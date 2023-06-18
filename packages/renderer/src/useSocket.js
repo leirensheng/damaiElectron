@@ -1,7 +1,7 @@
 // 引入 Socket.IO 客户端库
 import {useStore} from '/@/store/global';
 import eventBus from '/@/utils/eventBus.js';
-import {startCmdWithPidInfo, sleep} from '/@/utils/index.js';
+import {startCmdWithPidInfo} from '/@/utils/index.js';
 
 // 连接到本地服务器
 
@@ -79,7 +79,7 @@ class MySocket {
     this.socket.onerror = async e => {
       console.log('WebSocket连接打开失败，请检查！', e);
       this.connected = false;
-      await sleep(1000);
+      // await sleep(1000);
       this.connect();
     };
   }
