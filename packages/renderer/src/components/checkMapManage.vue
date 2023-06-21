@@ -47,6 +47,7 @@
 import { readFile, cmd, writeFile } from '#preload';
 import { ElMessageBox } from 'element-plus';
 import { useStore } from '/@/store/global';
+import eventBus from '/@/utils/eventBus.js';
 
 export default {
   components: {
@@ -178,6 +179,12 @@ export default {
 
       ];
     },
+  },
+  created() {
+    eventBus.on('getCheckList', this.getList);
+  },
+  unmounted() {
+    eventBus.off('getCheckList', this.getList);
   },
 
   methods: {

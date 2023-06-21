@@ -66,13 +66,24 @@ class MySocket {
             msg = e.message;
             console.log(e);
           }
-          this.socket.send(JSON.stringify({
-            type: 'startUserDone',
-            data: {
-              isSuccess,
-              msg,
-            },
-          }));
+          this.socket.send(
+            JSON.stringify({
+              type: 'startUserDone',
+              data: {
+                isSuccess,
+                msg,
+              },
+            }),
+          );
+        } else if (data.type === 'startCheck') {
+          let {cmd} = data;
+          try {
+            await startCmdWithPidInfo(cmd, '信息更新完成', true);
+            eventBus.emit('getCheckList');
+          } catch (e) {
+            console.log(e);
+          }
+
         }
       };
     };

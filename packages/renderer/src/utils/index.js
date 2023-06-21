@@ -54,7 +54,7 @@ let getIp = async () => {
   }
 };
 
-let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成') => {
+let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成', isSuccessClose) => {
   return new Promise((resolve, reject) => {
     const socketURL = 'ws://127.0.0.1:5000/socket/';
     axios
@@ -67,6 +67,9 @@ let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成') => {
           if (data.includes(successMsg)) {
             ws.close();
             resolve({pid});
+            if(isSuccessClose){
+              axios.get('http://127.0.0.1:5000/close/' + pid);
+            }
           } else {
             let res = data.match(/不正确|目标没对|目标为空|没有填写/);
             if (res) {
