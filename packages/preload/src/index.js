@@ -5,9 +5,9 @@ let getDynv6Ip = require('../../../../xiudongPupp/getDynv6Ip');
 import cmd from './cmd.js';
 // import  './useClient.js';
 export {cmd};
-export function readFile(name) {
+export function readFile(name,isElectron) {
   return new Promise((resolve, reject) => {
-    fs.readFile(path.resolve('../damai', name), 'utf-8', (e, res) => {
+    fs.readFile(path.resolve(isElectron?'./':'../damai', name), 'utf-8', (e, res) => {
       if (e) {
         reject(e);
         return;
@@ -17,9 +17,9 @@ export function readFile(name) {
   });
 }
 
-export function writeFile(name, data) {
+export function writeFile(name, data, isElectron) {
   return new Promise((resolve, reject) => {
-    fs.writeFile(path.resolve('../damai', name), data, e => {
+    fs.writeFile(path.resolve(isElectron?'./': '../damai', name), data, e => {
       if (e) {
         reject(e);
         return;
@@ -28,6 +28,7 @@ export function writeFile(name, data) {
     });
   });
 }
+
 export function readDir(name) {
   return new Promise((resolve, reject) => {
     fs.readdir(path.resolve('../damai', name), (e, data) => {
@@ -208,4 +209,13 @@ export async function refreshDns() {
   configStr = configStr.replaceAll(oldIp, ip);
   await writeFile('localConfig.json', configStr);
   return ip;
+}
+
+export async function savePidInfo(json) {
+  await writeFile('pidInfo.json', json, true);
+}
+
+export async function getPidInfoFromFile() {
+  let res= await readFile('pidInfo.json',  true);
+  return JSON.parse(res);
 }
