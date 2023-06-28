@@ -57,7 +57,7 @@ class MySocket {
           let isSuccess = false;
           let msg;
           try {
-            let res = await startCmdWithPidInfo(cmd, '信息获取完成', true);
+            let res = await startCmdWithPidInfo(cmd, '信息获取完成');
             pidInfo[cmd] = res.pid;
             msg = res.msg;
             isSuccess = true;
@@ -75,7 +75,7 @@ class MySocket {
               },
             }),
           );
-        } else if (data.type === 'startCheck') {
+        } else if (data.type === 'startCheckAndClose') {
           let {cmd} = data;
           try {
             await startCmdWithPidInfo(cmd, '信息更新完成', true);
@@ -83,7 +83,6 @@ class MySocket {
           } catch (e) {
             console.log(e);
           }
-
         }
       };
     };
