@@ -139,31 +139,11 @@ export function unZip(dest, name) {
   fs.unlinkSync(filePath);
 }
 
-export async function cloneRemoteConfig(ip, username, data) {
-  let http = require('http');
-  return new Promise((resolve, reject) => {
-    http
-      .get(`http://${ip}:5000/downloadConfig?username=${username}`, res => {
-        let folder = path.resolve(__dirname, '../../../../damai/userData/');
-        const dest = path.resolve(folder, username + '.zip');
-
-        const file = fs.createWriteStream(dest);
-        res.pipe(file);
-        file.on('finish', async () => {
-          file.close();
-          await unZip(folder, username);
-          let config = await readFile('config.json');
-          config = JSON.parse(config);
-          config[username] = data;
-          await writeFile('config.json', JSON.stringify(config, null, 4));
-          resolve();
-        });
-      })
-      .on('error', err => {
-        console.log('Error: ', err.message);
-        reject(err);
-      });
-  });
+export async function cloneRemoteConfig(username, data) {
+  let config = await readFile('config.json');
+  config = JSON.parse(config);
+  config[username] = data;
+  await writeFile('config.json', JSON.stringify(config, null, 4));
 }
 
 export function getRemoteIp(name) {

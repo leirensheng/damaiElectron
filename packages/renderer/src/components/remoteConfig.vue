@@ -37,7 +37,7 @@
       :table-btns-config="tableBtnsConfig"
       @before-assign-to-table="beforeAssignToTable"
     >
-      <template #username="{row}">
+      <template #username="{ row }">
         <div>
           <el-dropdown trigger="contextmenu">
             <span class="el-dropdown-link">
@@ -63,7 +63,7 @@
         </div>
       </template>
 
-      <template #targetTypes="{row}">
+      <template #targetTypes="{ row }">
         <el-tag
           v-for="(item, i) in row.targetTypes"
           :key="item"
@@ -80,11 +80,11 @@
 </template>
 
 <script>
-import {getComputerName, cloneRemoteConfig, getRemoteIp, doTwice} from '#preload';
+import { getComputerName, cloneRemoteConfig, getRemoteIp, doTwice } from '#preload';
 import axios from 'axios';
-import {ElNotification} from 'element-plus';
-import {readClip} from '#preload';
-import {getIp} from '/@/utils/index.js';
+import { ElNotification } from 'element-plus';
+import { readClip } from '#preload';
+import { getIp } from '/@/utils/index.js';
 
 export default {
   data() {
@@ -103,8 +103,8 @@ export default {
           name: 'isSuccess',
           isShow: false,
           options: [
-            {name: '是', id: true},
-            {name: '否', id: false},
+            { name: '是', id: true },
+            { name: '否', id: false },
           ],
           support: {
             query: {
@@ -133,7 +133,7 @@ export default {
         {
           id: 'activityId',
           name: 'showId',
-          width: 100,
+          width: 80,
         },
         {
           id: 'activityName',
@@ -143,16 +143,11 @@ export default {
             query: {},
           },
         },
-        {
-          id: 'showTime',
-          name: 'showTime',
-          width: 110,
-        },
 
         {
-          id: 'nameIndex',
-          name: 'order',
-          width: 67,
+          id: 'orders',
+          name: 'orders',
+          width: 50,
         },
 
         {
@@ -167,6 +162,7 @@ export default {
         {
           id: 'targetTypes',
           name: 'target',
+          minWidth: 250,
           valueType: 'slot',
           options: [],
         },
@@ -191,8 +187,8 @@ export default {
           width: 100,
           isShow: false,
           options: [
-            {id: true, name: '是'},
-            {id: false, name: '否'},
+            { id: true, name: '是' },
+            { id: false, name: '否' },
           ],
         },
 
@@ -216,6 +212,12 @@ export default {
           show: row => row.status === 1,
           name: '停止',
         },
+        {
+          type: 'danger',
+          handler: this.remove,
+          show: row => row.status !== 1,
+          name: '删除',
+        },
       ],
     };
   },
@@ -234,17 +236,23 @@ export default {
     console.log(this.pcName);
   },
   methods: {
-    async stop({pid}) {
+    async stop({ pid }) {
       await axios(`http://${this.remoteIp}:5000/close/${pid}?isFromRemote=1`);
       this.getList();
     },
-    beforeAssignToTable({records}) {
+    async remove({ username }) {
+      await axios.post(`http://${this.remoteIp}:5000/removeConfig/`, {
+        username,
+      });
+      this.getList();
+    },
+    beforeAssignToTable({ records }) {
       this.tableData = records;
     },
     getList() {
       return this.$refs.table.getList();
     },
-    tableRowClassName({row, rowIndex}) {
+    tableRowClassName({ row, rowIndex }) {
       if (row.remark && row.remark.includes('频繁')) {
         return 'grey';
       }
@@ -273,16 +281,16 @@ export default {
       });
     },
     async clone(row) {
-      let {username, config} = row;
+      let { username, config } = row;
       row.loading = true;
       try {
-        let fn = doTwice(cloneRemoteConfig, this.remoteIp);
-        await fn(username, JSON.parse(JSON.stringify(config)));
+        await cloneRemoteConfig(username, JSON.parse(JSON.stringify(config)));
         ElNotification({
           title: '成功',
           message: '拉取成功',
           type: 'success',
         });
+        await this.remove({ username });
         this.getList();
       } catch (e) {
         ElNotification({
@@ -293,7 +301,7 @@ export default {
       }
       row.loading = false;
     },
-    async loadConfig({queryItems}) {
+    async loadConfig({ queryItems }) {
       try {
         this.data = [];
 
@@ -307,7 +315,7 @@ export default {
 
         let {
           data: {
-            data: {config, pidToCmd},
+            data: { config, pidToCmd },
           },
         } = await fn();
 
@@ -325,13 +333,14 @@ export default {
 
         let items = queryItems.filter(item => item.value);
         data = data.filter(one => {
-          return items.every(({value, column}) => String(one[column]).indexOf(value) !== -1);
+          return items.every(({ value, column }) => String(one[column]).indexOf(value) !== -1);
         });
         data.sort((a, b) => Number(b.port) - Number(a.port));
 
         data.forEach(one => {
           let cmd = `npm run start ${one.username}`;
           one.cmd = cmd;
+          one.orders = one.orders.join(',');
           one.loading = false;
           one.hasSuccess = Boolean(one.hasSuccess);
           one.status = cmds.some(cmd => cmd.replace(/\s+show/, '') === one.cmd) ? 1 : 0;
