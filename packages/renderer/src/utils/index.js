@@ -3,6 +3,11 @@ import {ElNotification} from 'element-plus';
 import axios from 'axios';
 import {useStore} from '/@/store/global';
 import {storeToRefs} from 'pinia';
+const socketURL = 'ws://127.0.0.1:5000/socket/';
+let sleep = time =>
+  new Promise(r => {
+    setTimeout(r, time);
+  });
 
 export function debounce(fn, time = 2500) {
   let timer = null;
@@ -56,7 +61,6 @@ let getIp = async () => {
 
 let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成', isSuccessClose) => {
   return new Promise((resolve, reject) => {
-    const socketURL = 'ws://127.0.0.1:5000/socket/';
     axios
       .get('http://127.0.0.1:5000/terminal')
       .then(res => res.data.data)
@@ -67,11 +71,11 @@ let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成', isSuccessClos
           if (data.includes(successMsg)) {
             ws.close();
             resolve({pid});
-            if(isSuccessClose){
+            if (isSuccessClose) {
               axios.get('http://127.0.0.1:5000/close/' + pid);
             }
           } else {
-            let res = data.match(/不正确|目标没对|目标为空|没有填写/);
+            let res = data.match(/不正确|目标没对|目标为空|没有填写|没有该用户|演出结束/);
             if (res) {
               ws.close();
               axios.get('http://127.0.0.1:5000/close/' + pid);
@@ -86,6 +90,66 @@ let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成', isSuccessClos
   });
 };
 
+let startCmdAngGetPic = cmd => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject(new Error('超时'));
+    }, 25000);
+    axios
+      .get('http://127.0.0.1:5000/terminal')
+      .then(res => res.data.data)
+      .then(pid => {
+        console.log('新增进程:' + pid);
+        let ws = new WebSocket(socketURL + pid);
+        let allData = '';
+        ws.onmessage = async ({data}) => {
+          allData += data.trim().replace(/[\b]$/, '');
+          if (allData.match(/不正确/)) {
+            reject(new Error('密码不正确'));
+            ws.close();
+            return;
+          } else if (allData.match(/验证条/)) {
+            await sleep(5000);
+            reject(new Error('需要滑动验证, 请联系卖家处理'));
+            ws.close();
+            return;
+          } else if (allData.match(/登录完成/)) {
+            if (allData.match(/没有填写观演人/)) {
+              reject(new Error('没有观演人, 请先添加'));
+              ws.close();
+              return;
+            } else if (allData.match(/没有填写收获地址/)) {
+              reject(new Error('没有地址, 请先添加'));
+              ws.close();
+              return;
+            } else if (allData.match(/信息获取完成/)) {
+              resolve({
+                pid,
+                message: '不需验证码',
+              });
+              ws.close();
+              return;
+            }
+          }
+          let endPoint = '';
+          let res = allData.match(/浏览器endPoint【(.*?)】/);
+
+          if (res) {
+            endPoint = res[1];
+            console.log('res', endPoint);
+            resolve({
+              endPoint,
+              pid,
+            });
+            ws.close();
+          }
+        };
+        ws.onopen = () => {
+          ws.send(`${cmd} \r\n`);
+        };
+      });
+  });
+};
 let stopCmd = async cmd => {
   let store = useStore();
   let {setPidInfo} = store;
@@ -96,9 +160,12 @@ let stopCmd = async cmd => {
   setPidInfo({...pidInfo});
 };
 
-let sleep = time =>
-  new Promise(r => {
-    setTimeout(r, time);
-  });
-
-export {getRunningCheck, getRunningUser, getIp, startCmdWithPidInfo, sleep, stopCmd};
+export {
+  getRunningCheck,
+  getRunningUser,
+  getIp,
+  startCmdWithPidInfo,
+  sleep,
+  stopCmd,
+  startCmdAngGetPic,
+};

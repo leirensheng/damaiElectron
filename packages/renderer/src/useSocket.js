@@ -1,7 +1,7 @@
 // 引入 Socket.IO 客户端库
 import {useStore} from '/@/store/global';
 import eventBus from '/@/utils/eventBus.js';
-import {startCmdWithPidInfo} from '/@/utils/index.js';
+import {startCmdWithPidInfo,startCmdAngGetPic} from '/@/utils/index.js';
 
 // 连接到本地服务器
 
@@ -83,6 +83,36 @@ class MySocket {
           } catch (e) {
             console.log(e);
           }
+        }else if (data.type === 'startLogin') {
+          let {cmd} = data;
+          let store = useStore();
+          let {pidInfo} = store;
+          let isSuccess = false;
+          let msg;
+          let pid;
+          let endPoint;
+          try {
+            let res = await startCmdAngGetPic(cmd);
+            endPoint = res.endPoint;
+            pid = res.pid;
+            pidInfo[cmd] = res.pid;
+            isSuccess = true;
+            eventBus.emit('getUserList');
+          } catch (e) {
+            msg = e.message;
+            console.log(e);
+          }
+          this.socket.send(
+            JSON.stringify({
+              type: 'startLoginDone',
+              data: {
+                isSuccess,
+                msg,
+                pid,
+                endPoint,
+              },
+            }),
+          );
         }
       };
     };

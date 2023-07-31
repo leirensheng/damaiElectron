@@ -685,27 +685,7 @@ export default {
       let str = await readFile('config.json');
       return JSON.parse(str);
     },
-    async stopFrequency(data) {
-      let timer;
-      data.forEach(one => {
-        if ((one.remark && one.remark.includes('频繁')) || one.hasSuccess) {
-          let cmd = this.getCmd(one);
-          let prePid = this.pidInfo[cmd];
-          if (prePid) {
-            const socketURL = 'ws://127.0.0.1:5000/socket/';
-            let ws = new WebSocket(socketURL + prePid);
-            ws.onopen = () => {
-              ws.close();
-              delete this.pidInfo[cmd];
-              clearTimeout(timer);
-              timer = setTimeout(() => {
-                this.getList();
-              }, 200);
-            };
-          }
-        }
-      });
-    },
+
     async getData({queryItems}) {
       let obj = await this.getConfigFile();
       let data = Object.entries(obj).map(([key, val]) => ({
@@ -731,7 +711,6 @@ export default {
       data = data.filter(one =>
         this.isHideFre ? !(one.remark && one.remark.includes('频繁')) : true,
       );
-      this.stopFrequency(data);
 
       if (this.isUnique) {
         let activityIds = [...new Set(data.map(one => Number(one.activityId)))];
