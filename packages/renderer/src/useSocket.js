@@ -1,7 +1,7 @@
 // 引入 Socket.IO 客户端库
 import {useStore} from '/@/store/global';
 import eventBus from '/@/utils/eventBus.js';
-import {startCmdWithPidInfo,startCmdAngGetPic} from '/@/utils/index.js';
+import {startCmdWithPidInfo, startCmdAngGetPic} from '/@/utils/index.js';
 
 // 连接到本地服务器
 
@@ -51,13 +51,13 @@ class MySocket {
         } else if (data.type === 'getConfigList') {
           eventBus.emit('getUserList');
         } else if (data.type === 'startUser') {
-          let {cmd} = data;
+          let {cmd, isStopWhenLogin} = data;
           let store = useStore();
           let {pidInfo} = store;
           let isSuccess = false;
           let msg;
           try {
-            let res = await startCmdWithPidInfo(cmd, '信息获取完成');
+            let res = await startCmdWithPidInfo({cmd, successMsg: '信息获取完成', isStopWhenLogin});
             pidInfo[cmd] = res.pid;
             msg = res.msg;
             isSuccess = true;
@@ -78,12 +78,12 @@ class MySocket {
         } else if (data.type === 'startCheckAndClose') {
           let {cmd} = data;
           try {
-            await startCmdWithPidInfo(cmd, '信息更新完成', true);
+            await startCmdWithPidInfo({cmd, successMsg:'信息更新完成',  isSuccessClose:true});
             eventBus.emit('getCheckList');
           } catch (e) {
             console.log(e);
           }
-        }else if (data.type === 'startLogin') {
+        } else if (data.type === 'startLogin') {
           let {cmd} = data;
           let store = useStore();
           let {pidInfo} = store;

@@ -87,7 +87,7 @@ export default {
     },
     async recoverOne(pidInfo, cmd, successMsg) {
       try {
-        let { pid } = await startCmdWithPidInfo(cmd, successMsg);
+        let { pid } = await startCmdWithPidInfo({cmd, successMsg, isStopWhenLogin: true});
         pidInfo[cmd] = pid;
       } catch (e) {
         delete pidInfo[cmd];

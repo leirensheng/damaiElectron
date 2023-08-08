@@ -59,7 +59,7 @@ let getIp = async () => {
   }
 };
 
-let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成', isSuccessClose) => {
+let startCmdWithPidInfo = ({cmd, successMsg = '信息获取完成', isSuccessClose,isStopWhenLogin}) => {
   return new Promise((resolve, reject) => {
     axios
       .get('http://127.0.0.1:5000/terminal')
@@ -67,18 +67,29 @@ let startCmdWithPidInfo = (cmd, successMsg = '信息获取完成', isSuccessClos
       .then(pid => {
         console.log('新增进程:' + pid);
         let ws = new WebSocket(socketURL + pid);
+        let closePid = () => axios.get('http://127.0.0.1:5000/close/' + pid);
+
         ws.onmessage = ({data}) => {
           if (data.includes(successMsg)) {
             ws.close();
             resolve({pid});
             if (isSuccessClose) {
-              axios.get('http://127.0.0.1:5000/close/' + pid);
+              closePid();
+            }
+          } else if(data.includes('打开登录页面')){
+            if (isStopWhenLogin) {
+              ws.close();
+              closePid();
+              resolve({});
+            } else {
+              ws.close();
+              resolve({pid});
             }
           } else {
             let res = data.match(/不正确|目标没对|目标为空|没有填写|没有该用户|演出结束/);
             if (res) {
               ws.close();
-              axios.get('http://127.0.0.1:5000/close/' + pid);
+              closePid();
               reject(new Error(cmd + res[0]));
             }
           }
