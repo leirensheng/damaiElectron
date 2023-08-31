@@ -610,8 +610,8 @@ export default {
     },
     getCmd(row) {
       let cmds = Object.keys(this.pidInfo);
-      let runningCmd = cmds.find(cmd => cmd.replace(/\s+show/, '') === row.cmd);
-      let cmd = runningCmd || row.cmd + ' ' + (this.isShow ? 'show' : '');
+      let runningCmd = cmds.find(cmd => cmd.split(/\s+/)[3] === row.username);
+      let cmd = runningCmd || row.cmd + ' ' + (this.isShow ? '1 true' : '');
       return cmd.trim();
     },
     start(row) {
@@ -705,7 +705,7 @@ export default {
         let cmd = `npm run start ${one.username}`;
         one.cmd = cmd;
         one.hasSuccess = Boolean(one.hasSuccess);
-        one.status = cmds.some(cmd => cmd.replace(/\s+show/, '') === one.cmd) ? 1 : 0;
+        one.status = cmds.some(cmd => cmd.split(/\s+/)[3] === one.username) ? 1 : 0;
         one.showOrders= one.orders.join(',');
       });
       data = data.filter(one =>
