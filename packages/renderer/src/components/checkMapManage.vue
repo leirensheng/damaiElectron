@@ -10,6 +10,7 @@
       one-page-hide-pagination
       :table-btns-config="tableBtnsConfig"
       :on-dialog-open="onDialogOpen"
+      @afterQuery="removeExpired"
     >
       <template #onlyMonitorType="{ row }">
         <el-tag
@@ -48,6 +49,7 @@ import { readFile, cmd, writeFile } from '#preload';
 import { ElMessageBox } from 'element-plus';
 import { useStore } from '/@/store/global';
 import eventBus from '/@/utils/eventBus.js';
+import { ElNotification } from 'element-plus';
 
 export default {
   components: {
@@ -276,6 +278,34 @@ export default {
     },
     getList() {
       this.$refs.table.getList();
+    },
+    async removeExpired(data) {
+      let fileData = await this.getCheckFile();
+      let hasExpiredArr = [];
+
+      for (let one of data) {
+        let dates = [... new Set(Object.values(one.skuIdToTypeMap).map(one => {
+          let date = one.split('_')[0];
+          let arr = date.split(/(\s+)/);
+          return arr[0] + ' ' + arr.slice(-1)[0];
+        }))];
+
+        let isExpired = dates.every(date => new Date(date) < new Date());
+        if (isExpired) {
+          console.log(one.activityName + '过期');
+          delete fileData[one.port];
+          hasExpiredArr.push(one.activityName);
+        }
+      }
+      if (hasExpiredArr.length) {
+        await writeFile('checkMap.json', JSON.stringify(fileData, null, 4));
+        await this.$refs.table.getList();
+        ElNotification({
+          title: '有过期的',
+          message: hasExpiredArr.join('__'),
+          type: 'success',
+        });
+      }
     },
     async getCheckFile() {
       let str = await readFile('checkMap.json');
