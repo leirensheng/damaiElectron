@@ -76,7 +76,7 @@ let startCmdWithPidInfo = ({cmd, successMsg = '信息获取完成', isSuccessClo
             if (isSuccessClose) {
               closePid();
             }
-          } else if(data.includes('打开登录页面')){
+          } else if(data.includes('需要手机验证码')){
             if (isStopWhenLogin) {
               ws.close();
               closePid();
@@ -86,7 +86,7 @@ let startCmdWithPidInfo = ({cmd, successMsg = '信息获取完成', isSuccessClo
               resolve({pid});
             }
           } else {
-            let res = data.match(/不正确|目标没对|目标为空|没有填写|没有该用户|演出结束/);
+            let res = data.match(/不正确|目标没对|目标为空|没有填写|没有该用户|演出结束|主动退出/);
             if (res) {
               ws.close();
               closePid();

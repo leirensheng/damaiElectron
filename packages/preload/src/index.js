@@ -153,7 +153,7 @@ export function getRemoteIp(name) {
       ? '192.168.4.1'
       : pcName === '联想'
       ? '192.168.5.1'
-      : '7l235k7324.yicp.fun',
+      : 'mticket.ddns.net',
     '虚拟机4.3': ['虚拟机4.4', '新电脑'].includes(pcName) ? '192.168.4.3' : '100.95.67.33',
     '虚拟机4.4': ['虚拟机4.3', '新电脑'].includes(pcName) ? '192.168.4.4' : '100.116.129.127',
     联想: '192.168.5.2',
@@ -168,7 +168,7 @@ export function doTwice(fn, host) {
     let res = await readFile('localConfig.json');
     let {dnsIp} = JSON.parse(res);
 
-    if (host.includes('7l235k7324.yicp.fun') && dnsIp) {
+    if (host.includes('mticket.ddns.net') && dnsIp) {
       try {
         res = await fn(dnsIp, ...args);
       } catch (e) {
