@@ -50,6 +50,20 @@ class MySocket {
           }
         } else if (data.type === 'getConfigList') {
           eventBus.emit('getUserList');
+        }else if (data.type === 'recover') {
+          eventBus.emit('switchTab','ConfigManage');
+          eventBus.emit('recover');
+          eventBus.once('recoverDone', (failCmds)=>{
+            console.log('recoverDone');
+            this.socket.send(
+              JSON.stringify({
+                type: 'recoverDone',
+                data:{
+                  failCmds,
+                },
+              }),
+            );
+          });
         } else if (data.type === 'startUser') {
           let {cmd, isStopWhenLogin} = data;
           let store = useStore();

@@ -24,6 +24,7 @@ import { ElMessageBox } from 'element-plus';
 import { storeToRefs } from 'pinia';
 
 import { getPidInfoFromFile } from '#preload';
+import eventBus from '/@/utils/eventBus.js';
 
 
 export default {
@@ -62,7 +63,12 @@ export default {
       },
     },
   },
-  created() { },
+  unmounted() {
+    eventBus.off('recover', this.recover);
+  },
+  created() { 
+    eventBus.on('recover', this.recover);
+  },
   methods: {
     async checkIsShowRecover() {
       let pidInfo = await getPidInfoFromFile();
@@ -124,7 +130,7 @@ export default {
           type: 'error',
         });
       }
-
+      eventBus.emit('recoverDone',this.failCmds);
       this.recovering = false;
     },
   },
