@@ -26,7 +26,7 @@ import OrderPage from '/@/components/orderPage.vue';
 import LocalConfig from '/@/components/localConfig.vue';
 import RemoteConfig from '/@/components/remoteConfig.vue';
 
-import {getIp} from './utils/index.js';
+import {getIp,updateProxyWhiteIp} from './utils/index.js';
 import {useStore} from '/@/store/global';
 import {storeToRefs} from 'pinia';
 import {savePidInfo} from '#preload';
@@ -94,13 +94,18 @@ export default {
   created() {
     eventBus.on('switchTab', this.switchTab);
 
-    getIp();
+    this.init();
   },
   unmounted() {
     eventBus.off('switchTab', this.switchTab);
   },
   mounted() {},
   methods: {
+    async init() {
+      let ip = await getIp();
+      console.log(ip);
+      updateProxyWhiteIp(ip);
+    },
     switchTab(val){
       this.activeName = val;
     },

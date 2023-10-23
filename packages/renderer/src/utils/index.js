@@ -51,6 +51,7 @@ let getIp = async () => {
       message: ip,
       type: 'success',
     });
+    return ip;
   } catch (e) {
     ElNotification({
       title: 'DNS更新出错',
@@ -170,7 +171,17 @@ let stopCmd = async cmd => {
   delete pidInfo[cmd];
   setPidInfo({...pidInfo});
 };
+let updateProxyWhiteIp = async (ip)=>{
+  let {data:{data}} = await axios.get('https://api.douyadaili.com/proxy/?service=GetWhite&authkey=APe4Ryhs0IE6DVgzIDjB&format=json');
+  if(data.includes(ip)){
+    console.log('无需更新IP');
+    return;
+  }
 
+   await axios.get('https://api.douyadaili.com/proxy/?service=DelWhite&authkey=APe4Ryhs0IE6DVgzIDjB&format=json');
+   await axios.get(`https://api.douyadaili.com/proxy/?service=AddWhite&authkey=APe4Ryhs0IE6DVgzIDjB&white=${ip}&format=json`);
+   console.log('更新白名单完成');
+};
 export {
   getRunningCheck,
   getRunningUser,
@@ -179,4 +190,5 @@ export {
   sleep,
   stopCmd,
   startCmdAngGetPic,
+  updateProxyWhiteIp
 };
