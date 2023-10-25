@@ -12,7 +12,10 @@
       >
       </el-tab-pane>
     </el-tabs>
-    <div class="content">
+    <div
+      v-loading="loading"
+      class="content"
+    >
       <component :is="activeName"></component>
     </div>
   </div>
@@ -48,6 +51,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       activeName: 'ConfigManage',
       tabs: [
         {
@@ -102,9 +106,11 @@ export default {
   mounted() {},
   methods: {
     async init() {
+      this.loading = true;
       let ip = await getIp();
       console.log(ip);
-      updateProxyWhiteIp(ip);
+      await updateProxyWhiteIp(ip);
+      this.loading = false;
     },
     switchTab(val){
       this.activeName = val;
