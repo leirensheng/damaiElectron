@@ -113,7 +113,7 @@ export default {
         let userCmds = cmds.filter(one => one.includes('npm run start'));
         let checkCmds = cmds.filter(one => one.includes('npm run check'));
         for (let cmd of userCmds) {
-          await this.recoverOne(pidInfo, cmd, '信息获取完成');
+          await this.recoverOne(pidInfo, cmd.replace(/ 1 true/, ''), '信息获取完成');
         }
         for (let cmd of checkCmds) {
           await this.recoverOne(pidInfo, cmd, '开始进行');

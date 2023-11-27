@@ -50,6 +50,7 @@ import { ElMessageBox } from 'element-plus';
 import { useStore } from '/@/store/global';
 import eventBus from '/@/utils/eventBus.js';
 import { ElNotification } from 'element-plus';
+import axios from 'axios';
 
 export default {
   components: {
@@ -295,6 +296,10 @@ export default {
           console.log(one.activityName + '过期');
           delete fileData[one.port];
           hasExpiredArr.push(one.activityName);
+          let pid = this.pidInfo[`npm run check ${one.port}`];
+          if (pid) {
+            await axios.get('http://127.0.0.1:5000/close/' + pid);
+          }
         }
       }
       if (hasExpiredArr.length) {
@@ -327,7 +332,7 @@ export default {
         one.status = cmds.some(cmd => cmd === one.cmd) ? 1 : 0;
         one.ticketTypes = Object.values(one.skuIdToTypeMap || []);
       });
-
+      data.sort((a, b) => (a.activityName[1]).charCodeAt() - (b.activityName[1]).charCodeAt());
       return {
         total: data.length,
         records: data,

@@ -47,7 +47,7 @@
       :on-dialog-open="onDialogOpen"
       @before-assign-to-table="beforeAssignToTable"
     >
-      <template #username="{row}">
+      <template #username="{ row }">
         <div>
           <el-dropdown trigger="contextmenu">
             <span class="el-dropdown-link">
@@ -90,7 +90,7 @@
           </el-dropdown>
         </div>
       </template>
-      <template #activityId="{row}">
+      <template #activityId="{ row }">
         <div>
           <el-icon
             class="copy-icon"
@@ -101,7 +101,7 @@
           <span>{{ row.activityId }}</span>
         </div>
       </template>
-      <template #activityName="{row}">
+      <template #activityName="{ row }">
         <div>
           <el-icon
             class="copy-icon"
@@ -112,7 +112,7 @@
           <span>{{ row.activityName }}</span>
         </div>
       </template>
-      <template #targetTypes="{row}">
+      <template #targetTypes="{ row }">
         <el-tag
           v-for="(item, i) in row.targetTypes"
           :key="item"
@@ -171,14 +171,14 @@
 </template>
 
 <script>
-import {readFile, readDir, cmd, copyText, writeFile, getComputerName, getRemoteIp} from '#preload';
-import {ElMessageBox} from 'element-plus';
-import {useStore} from '/@/store/global';
+import { readFile, readDir, cmd, copyText, writeFile, getComputerName, getRemoteIp } from '#preload';
+import { ElMessageBox } from 'element-plus';
+import { useStore } from '/@/store/global';
 import CmdTerminal2 from './cmdTerminal2.vue';
 import axios from 'axios';
-import {ElNotification} from 'element-plus';
-import {getIp} from '/@/utils/index.js';
-import {storeToRefs} from 'pinia';
+import { ElNotification } from 'element-plus';
+import { getIp } from '/@/utils/index.js';
+import { storeToRefs } from 'pinia';
 import CalcUser from '/@/components/calcUser.vue';
 import RecoverState from '/@/components/recoverState.vue';
 import eventBus from '/@/utils/eventBus.js';
@@ -190,7 +190,7 @@ export default {
   },
   setup() {
     let store = useStore();
-    let {pidInfo} = storeToRefs(store);
+    let { pidInfo } = storeToRefs(store);
 
     let useServer = () => {
       let startServer = () => {
@@ -266,8 +266,8 @@ export default {
           name: 'isSuccess',
           isShow: false,
           options: [
-            {name: '是', id: true},
-            {name: '否', id: false},
+            { name: '是', id: true },
+            { name: '否', id: false },
           ],
           support: {
             query: {
@@ -280,7 +280,7 @@ export default {
           name: 'user',
           width: 100,
           valueType: 'slot',
-          rules: [{validator: this.validateUser, trigger: 'blur'}],
+          rules: [{ validator: this.validateUser, trigger: 'blur' }],
           support: {
             query: {},
             add: {},
@@ -324,8 +324,8 @@ export default {
             query: {},
           },
         },
-   
-        
+
+
         {
           id: 'showOrders',
           name: 'showOrders',
@@ -357,7 +357,7 @@ export default {
           id: 'phone',
           name: 'phone',
           required: true,
-          width:90,
+          width: 90,
 
           support: {
             add: {},
@@ -368,7 +368,7 @@ export default {
         {
           id: 'password',
           name: 'password',
-          width:10,
+          width: 10,
           isShow: false,
           required: true,
           support: {
@@ -384,8 +384,8 @@ export default {
           valueType: 'slot',
           options: [],
           support: {
-            query:{
-              type:'input',
+            query: {
+              type: 'input',
             },
             edit: {
               // type:'radio',
@@ -431,8 +431,8 @@ export default {
             },
           },
           options: [
-            {id: true, name: '是'},
-            {id: false, name: '否'},
+            { id: true, name: '是' },
+            { id: false, name: '否' },
           ],
         },
 
@@ -451,7 +451,7 @@ export default {
   },
   computed: {
     title() {
-      let {activityName, username,targetTypes} = this.curRow || {};
+      let { activityName, username, targetTypes } = this.curRow || {};
       return `${username}__${activityName}_${targetTypes?.join('_')}`;
     },
   },
@@ -512,7 +512,7 @@ export default {
       delete this.pidInfo[this.cmd];
       this.getList();
     },
-    tableRowClassName({row, rowIndex}) {
+    tableRowClassName({ row, rowIndex }) {
       if (row.remark && row.remark.includes('频繁')) {
         return 'grey';
       }
@@ -533,7 +533,7 @@ export default {
       let config = obj[this.curRow.username];
       let res = await axios.post(
         'http://127.0.0.1:5000/copyUserFile',
-        {username: this.curRow.username, host: getRemoteIp(this.remotePc), config},
+        { username: this.curRow.username, host: getRemoteIp(this.remotePc), config },
         {
           timeout: 30000,
         },
@@ -569,7 +569,7 @@ export default {
       console.log(11111, row);
       this.remoteDialogVisible = true;
     },
-    beforeAssignToTable({records}) {
+    beforeAssignToTable({ records }) {
       this.tableData = records;
     },
     exit() {
@@ -579,10 +579,10 @@ export default {
     getList() {
       return this.$refs.table.getList();
     },
-    async copy({username}) {
-      let {value} = await ElMessageBox.prompt('', '输入新用户');
-      let {value: phone} = await ElMessageBox.prompt('', '用户手机号');
-      let {value: password} = await ElMessageBox.prompt('', '密码');
+    async copy({ username }) {
+      let { value } = await ElMessageBox.prompt('', '输入新用户');
+      let { value: phone } = await ElMessageBox.prompt('', '用户手机号');
+      let { value: password } = await ElMessageBox.prompt('', '密码');
 
       this.loading = true;
       await this.cmdCopy(value, username, phone, password);
@@ -600,7 +600,7 @@ export default {
     },
     cmdCopy(value, username, phone, password) {
       return new Promise(r => {
-        let val =`npm run add ${value} ${true} ${username}-${phone}-${password}-${''}-${''}-${0}`; 
+        let val = `npm run add ${value} ${true} ${username}-${phone}-${password}-${''}-${''}-${0}`;
         cmd(val, data => {
           if (data === 'done') {
             r();
@@ -622,27 +622,27 @@ export default {
       row.status = 1;
     },
     async handlerAdd(val) {
-      let obj = {...val};
-      if(obj.showOrders!==undefined){
-        obj.orders = String(obj.showOrders).split(',').map(one=> Number(one));
+      let obj = { ...val };
+      if (obj.showOrders !== undefined) {
+        obj.orders = String(obj.showOrders).split(',').map(one => Number(one));
         delete obj.showOrders;
       }
-      await this.updateFile({key: val.username, val:obj, isAdd: true});
+      await this.updateFile({ key: val.username, val: obj, isAdd: true });
       await this.getList();
       let target = this.tableData.find(one => one.username === val.username);
       this.start(target);
     },
     async handleEdit(val) {
-      let obj = {...val};
-      let noSaveFields = ['ticketTypes','username','color','status','cmd'];
-      noSaveFields.forEach(one=>{
+      let obj = { ...val };
+      let noSaveFields = ['ticketTypes', 'username', 'color', 'status', 'cmd'];
+      noSaveFields.forEach(one => {
         delete obj[one];
       });
-      if(obj.uid){
-        obj.uid = obj.uid.replace('尊敬的用户，你的UID是：','');
+      if (obj.uid) {
+        obj.uid = obj.uid.replace('尊敬的用户，你的UID是：', '');
       }
-      if(obj.showOrders){
-        obj.orders = obj.showOrders.split(',').map(one=> Number(one));
+      if (obj.showOrders) {
+        obj.orders = obj.showOrders.split(',').map(one => Number(one));
         delete obj.showOrders;
       }
       await this.updateFile({
@@ -651,7 +651,7 @@ export default {
       });
       await this.$refs.table.getList();
     },
-    async updateFile({key, val, isAdd}) {
+    async updateFile({ key, val, isAdd }) {
       let fileData = await this.getConfigFile();
       if (isAdd && fileData[key] !== undefined) {
         throw new Error('已经有了' + key);
@@ -661,7 +661,7 @@ export default {
     },
     async onDialogOpen(form) {
       let target = this.items.find(one => one.id === 'targetTypes');
-      target.options = (form.ticketTypes || []).map(one => ({id: one, name: one}));
+      target.options = (form.ticketTypes || []).map(one => ({ id: one, name: one }));
       return form;
     },
     async remove(obj, noShowConfirm) {
@@ -672,7 +672,7 @@ export default {
           type: 'warning',
         });
       }
-       await new Promise(r => {
+      await new Promise(r => {
         cmd(`npm run remove  ${obj.username}`, data => {
           if (data === 'done') {
             r();
@@ -686,7 +686,7 @@ export default {
       return JSON.parse(str);
     },
 
-    async getData({queryItems}) {
+    async getData({ queryItems }) {
       let obj = await this.getConfigFile();
       let data = Object.entries(obj).map(([key, val]) => ({
         ...val,
@@ -694,36 +694,48 @@ export default {
         username: key,
       }));
 
-      let items = queryItems.filter(item => item.value);
-      data = data.filter(one => {
-        return items.every(({value, column}) => String(one[column]).indexOf(value) !== -1);
-      });
-      data.sort((a, b) => Number(b.port) - Number(a.port));
+      try {
+        let items = queryItems.filter(item => item.value);
+        data = data.filter(one => {
+          return items.every(({ value, column }) => String(one[column]).indexOf(value) !== -1);
+        });
+        data.sort((a, b) => Number(b.port) - Number(a.port));
 
-      let cmds = Object.keys(this.pidInfo);
-      data.forEach(one => {
-        let cmd = `npm run start ${one.username}`;
-        one.cmd = cmd;
-        one.hasSuccess = Boolean(one.hasSuccess);
-        one.status = cmds.some(cmd => cmd.split(/\s+/)[3] === one.username) ? 1 : 0;
-        one.showOrders= one.orders.join(',');
-      });
-      data = data.filter(one =>
-        this.isHideFre ? !(one.remark && one.remark.includes('频繁')) : true,
-      );
 
-      if (this.isUnique) {
-        let activityIds = [...new Set(data.map(one => Number(one.activityId)))];
-        this.tableData = activityIds.map(activityId =>
-          data.find(one => Number(one.activityId) === activityId),
+        let cmds = Object.keys(this.pidInfo);
+        data.forEach(one => {
+          let cmd = `npm run start ${one.username}`;
+          one.cmd = cmd;
+          one.hasSuccess = Boolean(one.hasSuccess);
+          one.status = cmds.some(cmd => cmd.split(/\s+/)[3] === one.username) ? 1 : 0;
+          if(!one.orders){
+            console.log(one);
+          }
+          one.showOrders = one.orders.join(',');
+        });
+        data = data.filter(one =>
+          this.isHideFre ? !(one.remark && one.remark.includes('频繁')) : true,
         );
-      } else {
-        this.tableData = data;
+
+        if (this.isUnique) {
+          let activityIds = [...new Set(data.map(one => Number(one.activityId)))];
+          this.tableData = activityIds.map(activityId =>
+            data.find(one => Number(one.activityId) === activityId),
+          );
+        } else {
+          this.tableData = data;
+        }
+        console.log(1, this.tableData);
+
+        return {
+          total: this.tableData.length,
+          records: this.tableData,
+        };
+      } catch (e) {
+        console.log(e);
       }
-      return {
-        total: this.tableData.length,
-        records: this.tableData,
-      };
+
+
     },
   },
 };
@@ -731,6 +743,7 @@ export default {
 <style lang="scss" scoped>
 .config-manage {
   position: relative;
+
   .to-top {
     // z-index: 222;
     position: fixed;
@@ -738,6 +751,7 @@ export default {
     cursor: pointer;
     left: 10px;
   }
+
   .table-page-container {
     padding-top: 0;
   }
