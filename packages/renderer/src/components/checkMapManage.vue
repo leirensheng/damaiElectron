@@ -332,7 +332,7 @@ export default {
         one.status = cmds.some(cmd => cmd === one.cmd) ? 1 : 0;
         one.ticketTypes = Object.values(one.skuIdToTypeMap || []);
       });
-      data.sort((a, b) => (a.activityName[1]).charCodeAt() - (b.activityName[1]).charCodeAt());
+      data.sort((a, b) => (a.activityName ? a.activityName[1] : '').charCodeAt() - (b.activityName ? b.activityName[1] : '').charCodeAt());
       return {
         total: data.length,
         records: data,
