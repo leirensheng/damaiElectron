@@ -24,14 +24,14 @@ let cmd = ({cmd, successStr, failStr, isSuccessStop}) =>
 let startServer = async () => {
   try {
     await cmd({
-      cmd: 'pm2 restart damai',
+      cmd: 'pm2 restart slideServer && pm2 restart damai',
       failStr: "doesn't exist",
       successStr: 'Applying action restartProcessId on app',
       isSuccessStop: false,
     });
   } catch (e) {
     await cmd({
-      cmd: 'cd ../damaiServer && pm2 start damai',
+      cmd: 'cd ../slideServer && pm2 start slideServer && cd ../damaiServer && pm2 start damai',
     });
   }
 };
