@@ -194,7 +194,7 @@ export default {
 
     let useServer = () => {
       let startServer = () => {
-        cmd('cd ../damaiServer && pm2 start damai.js', res => {
+        cmd('cd ../slideServer && pm2 start slideServer.js && cd ../damaiServer && pm2 start damai.js', res => {
           if (res.includes('done')) {
             ElNotification({
               title: '成功',
@@ -206,7 +206,7 @@ export default {
       };
 
       let stopServer = () => {
-        cmd('cd ../damaiServer && pm2 stop damai.js');
+        cmd('cd ../slideServer && pm2 stop slideServer.js && cd ../damaiServer && pm2 stop damai.js');
       };
       return {
         startServer,
