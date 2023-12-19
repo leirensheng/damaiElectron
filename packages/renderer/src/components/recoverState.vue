@@ -97,6 +97,7 @@ export default {
         pidInfo[cmd] = pid;
       } catch (e) {
         delete pidInfo[cmd];
+        delete pidInfo[cmd+' 1 true'];
         this.failCmds.push(cmd);
         console.log(e);
       }
@@ -112,6 +113,8 @@ export default {
 
         let userCmds = cmds.filter(one => one.includes('npm run start'));
         let checkCmds = cmds.filter(one => one.includes('npm run check'));
+        userCmds =userCmds.map(cmd=> cmd.replace(/ 1 true/, ''));
+        userCmds = [...new Set(userCmds)];
         for (let cmd of userCmds) {
           await this.recoverOne(pidInfo, cmd, '信息获取完成');
         }
