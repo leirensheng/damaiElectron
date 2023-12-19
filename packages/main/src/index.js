@@ -1,7 +1,7 @@
 import {app} from 'electron';
 import './security-restrictions';
 import {restoreOrCreateWindow} from '/@/mainWindow';
-import {startServer} from './tool.js';
+// import {startServer} from './tool.js';
 /**
  * Prevent electron from running multiple instances.
  */
@@ -37,7 +37,6 @@ app.on('activate', restoreOrCreateWindow);
 app
   .whenReady()
   .then(restoreOrCreateWindow)
-  .then(startServer)
   .catch(e => console.error('Failed create window:', e));
 
 /**
