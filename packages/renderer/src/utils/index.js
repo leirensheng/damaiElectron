@@ -60,7 +60,7 @@ let getIp = async () => {
   }
 };
 
-let startCmdWithPidInfo = ({cmd, successMsg = '信息获取完成', isSuccessClose,isStopWhenLogin}) => {
+let startCmdWithPidInfo = ({cmd, successMsg = '信息获取完成', isSuccessClose, isStopWhenLogin}) => {
   return new Promise((resolve, reject) => {
     axios
       .get('http://127.0.0.1:5000/terminal')
@@ -77,7 +77,7 @@ let startCmdWithPidInfo = ({cmd, successMsg = '信息获取完成', isSuccessClo
             if (isSuccessClose) {
               closePid();
             }
-          } else if(data.includes('需要手机验证码')){
+          } else if (data.includes('需要手机验证码')) {
             if (isStopWhenLogin) {
               ws.close();
               closePid();
@@ -120,9 +120,8 @@ let startCmdAngGetPic = cmd => {
             reject(new Error('密码不正确'));
             ws.close();
             return;
-          } else if (allData.match(/验证条/)) {
-            await sleep(5000);
-            reject(new Error('需要滑动验证, 请联系卖家处理'));
+          } else if (allData.match(/自动滑动失败/)) {
+            reject(new Error('自动滑动失败, 请重试'));
             ws.close();
             return;
           } else if (allData.match(/登录完成/)) {
@@ -171,16 +170,25 @@ let stopCmd = async cmd => {
   delete pidInfo[cmd];
   setPidInfo({...pidInfo});
 };
-let updateProxyWhiteIp = async (ip)=>{
-  let {data:{data: ips}} = await axios.get('https://api.douyadaili.com/proxy/?service=GetWhite&authkey=APe4Ryhs0IE6DVgzIDjB&format=json');
-  if(ips.includes(ip)){
+let updateProxyWhiteIp = async ip => {
+  let {
+    data: {data: ips},
+  } = await axios.get(
+    'https://api.douyadaili.com/proxy/?service=GetWhite&authkey=APe4Ryhs0IE6DVgzIDjB&format=json',
+  );
+  if (ips.includes(ip)) {
     console.log('无需更新IP');
     return;
   }
 
-   await axios.get('https://api.douyadaili.com/proxy/?service=DelWhite&authkey=APe4Ryhs0IE6DVgzIDjB&format=json&white='+ ips.join(','));
-   await axios.get(`https://api.douyadaili.com/proxy/?service=AddWhite&authkey=APe4Ryhs0IE6DVgzIDjB&white=${ip}&format=json`);
-   console.log('更新白名单完成');
+  await axios.get(
+    'https://api.douyadaili.com/proxy/?service=DelWhite&authkey=APe4Ryhs0IE6DVgzIDjB&format=json&white=' +
+      ips.join(','),
+  );
+  await axios.get(
+    `https://api.douyadaili.com/proxy/?service=AddWhite&authkey=APe4Ryhs0IE6DVgzIDjB&white=${ip}&format=json`,
+  );
+  console.log('更新白名单完成');
 };
 export {
   getRunningCheck,
@@ -190,5 +198,5 @@ export {
   sleep,
   stopCmd,
   startCmdAngGetPic,
-  updateProxyWhiteIp
+  updateProxyWhiteIp,
 };
