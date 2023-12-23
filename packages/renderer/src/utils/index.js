@@ -124,6 +124,13 @@ let startCmdAngGetPic = cmd => {
             reject(new Error('自动滑动失败, 请重试'));
             ws.close();
             return;
+          } else if (allData.match(/滑动成功并直接登录好了/)) {
+            resolve({
+              pid,
+              message: '不需验证码',
+            });
+            ws.close();
+            return;
           } else if (allData.match(/登录完成/)) {
             if (allData.match(/没有填写观演人/)) {
               reject(new Error('没有观演人, 请先添加'));
