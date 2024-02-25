@@ -711,7 +711,7 @@ export default {
           if(!one.orders){
             console.log(one);
           }
-          one.showOrders = one.orders.join(',');
+          one.showOrders = one.orders?.join(',');
         });
         data = data.filter(one =>
           this.isHideFre ? !(one.remark && one.remark.includes('频繁')) : true,

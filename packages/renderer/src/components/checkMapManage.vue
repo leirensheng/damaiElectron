@@ -285,8 +285,8 @@ export default {
       let hasExpiredArr = [];
 
       for (let one of data) {
-        let dates = [... new Set(Object.values(one.skuIdToTypeMap).map(one => {
-          let date = one.split('_')[0];
+        let dates = [... new Set(Object.values(one.skuIdToTypeMap).map(item => {
+          let date = item.split('_')[0];
           let arr = date.split(/(\s+)/);
           return arr[0] + ' ' + arr.slice(-1)[0];
         }))];

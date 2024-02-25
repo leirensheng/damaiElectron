@@ -2,6 +2,8 @@
 import {useStore} from '/@/store/global';
 import eventBus from '/@/utils/eventBus.js';
 import {startCmdWithPidInfo, startCmdAngGetPic} from '/@/utils/index.js';
+import axios from 'axios';
+
 
 // 连接到本地服务器
 
@@ -50,6 +52,49 @@ class MySocket {
           }
         } else if (data.type === 'getConfigList') {
           eventBus.emit('getUserList');
+        } else if (data.type === 'getCheckList') {
+          eventBus.emit('getCheckList');
+        }else if (data.type === 'startCheck') {
+          let {cmd} = data;
+          let store = useStore();
+          let {pidInfo} = store;
+          let isSuccess = false;
+          let msg;
+          try {
+            let res = await startCmdWithPidInfo({cmd, successMsg: '开始进行'});
+            pidInfo[cmd] = res.pid;
+            msg = res.msg;
+            isSuccess = true;
+            eventBus.emit('getCheckList');
+          } catch (e) {
+            msg = e.message;
+            console.log(e);
+          }
+          this.socket.send(
+            JSON.stringify({
+              type: 'startCheckDone',
+              data: {
+                isSuccess,
+                msg,
+              },
+            }),
+          );
+        } else if (data.type === 'stopCheck') {
+          let {cmd} = data;
+          let store = useStore();
+          let {pidInfo} = store;
+          let pid = pidInfo[cmd];
+          await axios.get('http://127.0.0.1:5000/close/' + pid);
+          delete pidInfo[cmd];
+          eventBus.emit('getCheckList');
+          this.socket.send(
+            JSON.stringify({
+              type: 'stopCheckDone',
+              data: {
+                isSuccess: true,
+              },
+            }),
+          );
         }else if (data.type === 'recover') {
           eventBus.emit('switchTab','ConfigManage');
           eventBus.emit('recover');
