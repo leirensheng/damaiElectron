@@ -178,6 +178,7 @@ let stopCmd = async cmd => {
   setPidInfo({...pidInfo});
 };
 let updateProxyWhiteIp = async ip => {
+  if(!ip) return;
   let {
     data: {data: ips},
   } = await axios.get(

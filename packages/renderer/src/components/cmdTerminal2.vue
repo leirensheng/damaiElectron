@@ -1,5 +1,9 @@
 <template>
-  <div id="terminal"></div>
+  <div class="content-wrap">
+    <pre>
+    {{ showData }}
+  </pre>
+  </div>
   <div class="close-wrap">
     <el-button
       v-if="pidInfo[cmd]"
@@ -14,10 +18,6 @@
 
 <script>
 import axios from 'axios';
-import {Terminal} from 'xterm';
-import 'xterm/css/xterm.css';
-import {AttachAddon} from 'xterm-addon-attach';
-import {FitAddon} from 'xterm-addon-fit';
 import {useStore} from '/@/store/global';
 
 export default {
@@ -40,7 +40,9 @@ export default {
     };
   },
   data() {
-    return {};
+    return {
+      showData: '',
+    };
   },
   computed: {
     status() {
@@ -92,21 +94,6 @@ export default {
         console.log('连接进程:', pid);
       }
 
-      var term = new Terminal({
-        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
-        fontWeight: 400,
-        fontSize: 14,
-      });
-      this.term = term;
-
-      term.open(document.getElementById('terminal'));
-      term.focus();
-
-      term.onSelectionChange(() => {
-        let content = term.getSelection();
-        navigator.clipboard.writeText(content);
-      });
-
       let ws = new WebSocket(socketURL + pid);
       ws.onopen = () => {
         if (!prePid) {
@@ -116,18 +103,9 @@ export default {
       this.socket = ws;
 
       ws.onmessage = val => {
+        this.showData = this.showData + val.data;
+        console.log(val.data);
         this.$emit('message', val.data);
-      };
-
-      let attachAddon = new AttachAddon(ws);
-      term.loadAddon(attachAddon);
-      var fitAddon = new FitAddon();
-      term.loadAddon(fitAddon);
-      setTimeout(() => {
-        fitAddon.fit();
-      }, 5);
-      window.onresize = function () {
-        fitAddon.fit();
       };
     },
   },
@@ -135,6 +113,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.content-wrap{
+  height: 60vh;
+  overflow: auto;
+}
 #terminal {
   height: 100%;
 }
