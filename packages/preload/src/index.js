@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-let getDynv6Ip = require('../../../../xiudongPupp/getDynv6Ip');
+const axios = require('axios');
+// let getDynv6Ip = require('../../../../xiudongPupp/getDynv6Ip');
 
 import cmd from './cmd.js';
 // import  './useClient.js';
@@ -86,7 +87,7 @@ export function getComputerName() {
   let map = {
     'DESKTOP-AAKRGOM': '宏基',
     CCRPC028: '惠普',
-    'DESKTOP-43': '虚拟机4.3',
+    'DESKTOP-BVI3Q54': '技嘉',
     'DESKTOP-3ML3QTF': '虚拟机4.4',
     'DESKTOP-U1N2FOL': '联想',
     'DESKTOP-STTL34E': '新电脑',
@@ -182,7 +183,7 @@ export function doTwice(fn, host) {
 }
 
 export async function refreshDns() {
-  let ip = await getDynv6Ip();
+  let {data:ip} = await axios('https://ipinfo.io/ip');
   let configStr = await readFile('localConfig.json');
   let config = JSON.parse(configStr);
   let oldIp = config.dnsIp;

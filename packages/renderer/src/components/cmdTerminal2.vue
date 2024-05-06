@@ -104,7 +104,7 @@ export default {
 
       ws.onmessage = val => {
         this.showData = this.showData + val.data;
-        console.log(val.data);
+        // console.log(val.data);
         this.$emit('message', val.data);
       };
     },

@@ -104,6 +104,16 @@ export default {
       this.setPidInfo(pidInfo);
     },
 
+    async recoverUser(userCmds,pidInfo){
+       for (let cmd of userCmds) {
+          await this.recoverOne(pidInfo, cmd, '信息获取完成');
+        }
+    },
+    async recoverCheck(checkCmds,pidInfo){
+       for (let cmd of checkCmds) {
+          await this.recoverOne(pidInfo, cmd, '开始进行');
+        }
+    },
     async recover() {
       window.noSavePidInfo = true;
       this.recovering = true;
@@ -115,12 +125,9 @@ export default {
         let checkCmds = cmds.filter(one => one.includes('npm run check'));
         // userCmds =userCmds.map(cmd=> cmd.replace(/ 1 true/, ''));
         userCmds = [...new Set(userCmds)];
-        for (let cmd of userCmds) {
-          await this.recoverOne(pidInfo, cmd, '信息获取完成');
-        }
-        for (let cmd of checkCmds) {
-          await this.recoverOne(pidInfo, cmd, '开始进行');
-        }
+
+        await Promise.all([this.recoverCheck(checkCmds,pidInfo),this.recoverUser(userCmds,pidInfo)]);
+
 
         window.noSavePidInfo = false;
         this.setPidInfo({ ...pidInfo });
