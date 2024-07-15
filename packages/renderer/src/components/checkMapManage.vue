@@ -222,7 +222,7 @@ export default {
       await this.updateFile({ key: this.curRow.port, val: obj });
     },
     async handlerAdd(val) {
-      let obj = { ...val };
+      let obj = { targetTypes:[], ...val };
       try {
         await this.updateFile({ key: val.port, val: obj, isAdd: true });
         await this.runOne(val.port);
@@ -232,7 +232,7 @@ export default {
       }
     },
     async handleEdit(val) {
-      let noSaveFields = ['ticketTypes', 'skuIdToTypeMap', 'status', 'cmd', 'color'];
+      let noSaveFields = ['ticketTypes', 'skuIdToTypeMap', 'status', 'cmd', 'color','skuIdToTypeMap','activityName'];
       noSaveFields.forEach(one => {
         delete val[one];
       });
@@ -291,7 +291,7 @@ export default {
           return arr[0] + ' ' + arr.slice(-1)[0];
         }))];
 
-        let isExpired = dates.every(date => new Date(date) < new Date());
+        let isExpired = dates.length&&dates.every(date => new Date(date) < new Date());
         if (isExpired) {
           console.log(one.activityName + '过期');
           delete fileData[one.port];
@@ -312,6 +312,10 @@ export default {
         });
       }
     },
+    async getActivityInfo() {
+      let str = await readFile('activityInfo.json');
+      return JSON.parse(str);
+    },
     async getCheckFile() {
       let str = await readFile('checkMap.json');
       return JSON.parse(str);
@@ -319,8 +323,17 @@ export default {
 
 
     async getData({ queryItems }) {
-      let obj = await this.getCheckFile();
-      let data = Object.values(obj);
+      let [activityInfo,obj] = await Promise.all([this.getActivityInfo(),this.getCheckFile()]);
+
+      let data = Object.values(obj).map(one=>{
+        let info =  activityInfo[one.activityId];
+
+        return {
+          ...one,
+          activityName:info&&info.activityName,
+          skuIdToTypeMap:info?info.skuIdToTypeMap:{},
+        };
+      });
       let items = queryItems.filter(item => item.value);
       data = data.filter(one => {
         return items.every(({ value, column }) => String(one[column]).indexOf(value) !== -1);

@@ -54,7 +54,9 @@ export default {
     this.init();
   },
   beforeUnmount() {
-    this.socket && this.socket.close();
+    if(this.pidInfo[this.cmd]){
+      this.socket && this.socket.close();
+    }
   },
   methods: {
     async close() {

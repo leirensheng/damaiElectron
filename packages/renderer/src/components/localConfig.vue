@@ -29,8 +29,7 @@
         class="show-ip"
         @click="copyText(config.dnsIp + ':5678')"
       >
-        <el-icon class="copy-icon"> <DocumentCopy /> </el-icon>{{ config.dnsIp }}:5678</span
-      >
+        <el-icon class="copy-icon"> <DocumentCopy /> </el-icon>{{ config.dnsIp }}:5678</span>
       <el-button
         :loading="loadingDns"
         @click="refreshDns"
@@ -151,6 +150,9 @@ export default {
     async getConfig() {
       let str = await readFile('localConfig.json');
       let config = JSON.parse(str);
+      let activityInfo = await readFile('activityInfo.json');
+       activityInfo =  JSON.parse(activityInfo);
+
       this.config = config;
       let info = config.serverInfo;
       let hasConfigActivities = [];
@@ -169,7 +171,7 @@ export default {
       allConfig = JSON.parse(allConfig);
 
       let configs = Object.values(allConfig).map(one => ({
-        name: one.activityName,
+        name:activityInfo[one.activityId]?.activityName,
         activityId: one.activityId,
         ip: '',
         showTime: one.showTime,

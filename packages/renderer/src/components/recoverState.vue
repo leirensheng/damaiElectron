@@ -81,6 +81,8 @@ export default {
         .map(one => one.cmd);
 
       this.isShowRecover = cmds.length !== 0;
+      this.isShowRecover = true;
+
     },
     async openDialog() {
       let msg = this.failCmds.join('__');

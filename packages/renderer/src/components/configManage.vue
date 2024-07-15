@@ -622,7 +622,7 @@ export default {
       row.status = 1;
     },
     async handlerAdd(val) {
-      let obj = { ...val };
+      let obj = { targetTypes:[],...val };
       if (obj.showOrders !== undefined) {
         obj.orders = String(obj.showOrders).split(',').map(one => Number(one));
         delete obj.showOrders;
@@ -634,7 +634,7 @@ export default {
     },
     async handleEdit(val) {
       let obj = { ...val };
-      let noSaveFields = ['ticketTypes', 'username', 'color', 'status', 'cmd'];
+      let noSaveFields = ['ticketTypes', 'username', 'color', 'status', 'cmd','isWx'];
       noSaveFields.forEach(one => {
         delete obj[one];
       });
@@ -685,14 +685,23 @@ export default {
       let str = await readFile('config.json');
       return JSON.parse(str);
     },
+    async getActivityInfo() {
+      let str = await readFile('activityInfo.json');
+      return JSON.parse(str);
+    },
 
     async getData({ queryItems }) {
-      let obj = await this.getConfigFile();
-      let data = Object.entries(obj).map(([key, val]) => ({
+      let [activityInfo,obj] = await Promise.all([this.getActivityInfo(),this.getConfigFile()]);
+      let data = Object.entries(obj).map(([key, val]) => {
+        let info =  activityInfo[val.activityId];
+       return { 
         ...val,
-        ticketTypes: Object.values(val.skuIdToTypeMap || []),
+        isWx: info?info.isWx:null,
+        activityName:info? info.activityName: null,
+        ticketTypes: Object.values(info?info.skuIdToTypeMap : []),
         username: key,
-      }));
+        };
+      });
 
       try {
         let items = queryItems.filter(item => item.value);
