@@ -115,9 +115,11 @@ class MySocket {
           let {pidInfo} = store;
           let isSuccess = false;
           let msg;
+          let pid;
           try {
             let res = await startCmdWithPidInfo({cmd, successMsg: '信息获取完成', isStopWhenLogin});
             pidInfo[cmd] = res.pid;
+            pid = res.pid;
             msg = res.msg;
             isSuccess = true;
             eventBus.emit('getUserList');
@@ -131,6 +133,7 @@ class MySocket {
               data: {
                 isSuccess,
                 msg,
+                pid,
               },
             }),
           );
