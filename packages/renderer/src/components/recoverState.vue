@@ -17,15 +17,15 @@
 </template>
 
 <script>
-import { startCmdWithPidInfo } from '/@/utils/index.js';
-import { ElNotification } from 'element-plus';
-import { useStore } from '/@/store/global';
-import { ElMessageBox } from 'element-plus';
-import { storeToRefs } from 'pinia';
-
-import { getPidInfoFromFile } from '#preload';
+import {startCmdWithPidInfo} from '/@/utils/index.js';
+import {ElNotification} from 'element-plus';
+import {useStore} from '/@/store/global';
+import {ElMessageBox} from 'element-plus';
+import {storeToRefs} from 'pinia';
+import {readFile} from '#preload';
+import {getPidInfoFromFile} from '#preload';
 import eventBus from '/@/utils/eventBus.js';
-
+import axios from 'axios';
 
 export default {
   props: {
@@ -37,8 +37,8 @@ export default {
   emits: ['getList'],
   setup() {
     let store = useStore();
-    let { setPidInfo, setFailCmds } = store;
-    let { failCmds } = storeToRefs(store);
+    let {setPidInfo, setFailCmds} = store;
+    let {failCmds} = storeToRefs(store);
 
     return {
       setPidInfo,
@@ -52,9 +52,7 @@ export default {
       recovering: false,
     };
   },
-  computed: {
-
-  },
+  computed: {},
   watch: {
     tableData: {
       deep: true,
@@ -66,10 +64,16 @@ export default {
   unmounted() {
     eventBus.off('recover', this.recover);
   },
-  created() { 
+  created() {
     eventBus.on('recover', this.recover);
+    this.getIsSlave();
   },
   methods: {
+    async getIsSlave() {
+      let str = await readFile('localConfig.json');
+      let {isSlave} = JSON.parse(str);
+      this.isSlave = isSlave;
+    },
     async checkIsShowRecover() {
       let pidInfo = await getPidInfoFromFile();
       let usernames = Object.keys(pidInfo)
@@ -79,10 +83,8 @@ export default {
       let cmds = this.tableData
         .filter(one => !one.status && usernames.includes(one.username))
         .map(one => one.cmd);
-
       this.isShowRecover = cmds.length !== 0;
       this.isShowRecover = true;
-
     },
     async openDialog() {
       let msg = this.failCmds.join('__');
@@ -95,26 +97,26 @@ export default {
     },
     async recoverOne(pidInfo, cmd, successMsg) {
       try {
-        let { pid } = await startCmdWithPidInfo({cmd, successMsg, isStopWhenLogin: true});
+        let {pid} = await startCmdWithPidInfo({cmd, successMsg, isStopWhenLogin: true});
         pidInfo[cmd] = pid;
       } catch (e) {
         delete pidInfo[cmd];
-        delete pidInfo[cmd+' 1 true'];
+        delete pidInfo[cmd + ' 1 true'];
         this.failCmds.push(cmd);
         console.log(e);
       }
       this.setPidInfo(pidInfo);
     },
 
-    async recoverUser(userCmds,pidInfo){
-       for (let cmd of userCmds) {
-          await this.recoverOne(pidInfo, cmd, '信息获取完成');
-        }
+    async recoverUser(userCmds, pidInfo) {
+      for (let cmd of userCmds) {
+        await this.recoverOne(pidInfo, cmd, '信息获取完成');
+      }
     },
-    async recoverCheck(checkCmds,pidInfo){
-       for (let cmd of checkCmds) {
-          await this.recoverOne(pidInfo, cmd, '开始进行');
-        }
+    async recoverCheck(checkCmds, pidInfo) {
+      for (let cmd of checkCmds) {
+        await this.recoverOne(pidInfo, cmd, '开始进行');
+      }
     },
     async recover() {
       window.noSavePidInfo = true;
@@ -128,11 +130,24 @@ export default {
         // userCmds =userCmds.map(cmd=> cmd.replace(/ 1 true/, ''));
         userCmds = [...new Set(userCmds)];
 
-        await Promise.all([this.recoverCheck(checkCmds,pidInfo),this.recoverUser(userCmds,pidInfo)]);
+        await Promise.all([
+          this.recoverCheck(checkCmds, pidInfo),
+          this.recoverUser(userCmds, pidInfo),
+        ]);
 
+        if (this.isSlave) {
+          axios({
+            method: 'post',
+            url: 'http://mticket.ddns.net:5000/saveSlavePid',
+            data: {
+              cmds:userCmds,
+              pidInfo,
+            },
+          });
+        }
 
         window.noSavePidInfo = false;
-        this.setPidInfo({ ...pidInfo });
+        this.setPidInfo({...pidInfo});
         this.$emit('getList');
       } catch (e) {
         window.noSavePidInfo = false;
@@ -142,7 +157,7 @@ export default {
           type: 'error',
         });
       }
-      eventBus.emit('recoverDone',this.failCmds);
+      eventBus.emit('recoverDone', this.failCmds);
       this.recovering = false;
     },
   },

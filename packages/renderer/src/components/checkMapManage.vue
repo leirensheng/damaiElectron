@@ -222,7 +222,7 @@ export default {
       await this.updateFile({ key: this.curRow.port, val: obj });
     },
     async handlerAdd(val) {
-      let obj = { targetTypes:[], ...val };
+      let obj = { onlyMonitorType:[], ...val };
       try {
         await this.updateFile({ key: val.port, val: obj, isAdd: true });
         await this.runOne(val.port);
