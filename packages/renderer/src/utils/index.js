@@ -87,7 +87,7 @@ let startCmdWithPidInfo = ({cmd, successMsg = '信息获取完成', isSuccessClo
               resolve({pid});
             }
           } else {
-            let res = data.match(/不正确|目标没对|目标为空|没有填写|没有该用户|演出结束|主动退出|Failed to launch the|没有(\d{4,})|挤爆/);
+            let res = data.match(/不正确|目标没对|目标为空|没有填写|没有该用户|演出结束|主动退出|Failed to launch the|没有(\d{4,})|登录不应该|Error: Attempted|滑动失败/);
             if (res) {
               ws.close();
               closePid();
