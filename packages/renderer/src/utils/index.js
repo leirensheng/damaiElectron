@@ -106,7 +106,7 @@ let startCmdAngGetPic = cmd => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       reject(new Error('超时'));
-    }, 25000);
+    }, 60000);
     axios
       .get('http://127.0.0.1:5000/terminal')
       .then(res => res.data.data)

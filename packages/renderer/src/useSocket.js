@@ -47,7 +47,7 @@ class MySocket {
             console.log(cmd, pid);
             if (Number(closePid) === Number(pid)) {
               delete pidInfo[cmd];
-              eventBus.emit('getUserList');
+              // eventBus.emit('getUserList');
             }
           }
         } else if (data.type === 'getConfigList') {
