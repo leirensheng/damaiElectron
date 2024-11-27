@@ -47,7 +47,7 @@
       :on-dialog-open="onDialogOpen"
       @before-assign-to-table="beforeAssignToTable"
     >
-      <template #username="{row}">
+      <template #username="{ row }">
         <div>
           <el-dropdown trigger="contextmenu">
             <span class="el-dropdown-link">
@@ -90,7 +90,7 @@
           </el-dropdown>
         </div>
       </template>
-      <template #activityId="{row}">
+      <template #activityId="{ row }">
         <div>
           <el-icon
             class="copy-icon"
@@ -101,7 +101,7 @@
           <span>{{ row.activityId }}</span>
         </div>
       </template>
-      <template #activityName="{row}">
+      <template #activityName="{ row }">
         <div>
           <el-icon
             class="copy-icon"
@@ -112,7 +112,7 @@
           <span>{{ row.activityName }}</span>
         </div>
       </template>
-      <template #targetTypes="{row}">
+      <template #targetTypes="{ row }">
         <el-tag
           v-for="(item, i) in row.targetTypes"
           :key="item"
@@ -171,14 +171,14 @@
 </template>
 
 <script>
-import {readFile, readDir, cmd, copyText, writeFile, getComputerName, getRemoteIp} from '#preload';
-import {ElMessageBox} from 'element-plus';
-import {useStore} from '/@/store/global';
+import { readFile, readDir, cmd, copyText, writeFile, getComputerName, getRemoteIp } from '#preload';
+import { ElMessageBox } from 'element-plus';
+import { useStore } from '/@/store/global';
 import CmdTerminal2 from './cmdTerminal2.vue';
 import axios from 'axios';
-import {ElNotification} from 'element-plus';
-import {getIp} from '/@/utils/index.js';
-import {storeToRefs} from 'pinia';
+import { ElNotification } from 'element-plus';
+import { getIp } from '/@/utils/index.js';
+import { storeToRefs } from 'pinia';
 import CalcUser from '/@/components/calcUser.vue';
 import RecoverState from '/@/components/recoverState.vue';
 import eventBus from '/@/utils/eventBus.js';
@@ -190,12 +190,12 @@ export default {
   },
   setup() {
     let store = useStore();
-    let {pidInfo} = storeToRefs(store);
+    let { pidInfo } = storeToRefs(store);
 
     let useServer = () => {
       let startServer = () => {
         cmd(
-          'cd ../slideServer && pm2 start slideServer.js && cd ../damaiServer && pm2 start damai.js',
+          'cd ../slideServer && pm2 start slideServer.js && cd ../damaiServer && pm2 start damaiCluster.js',
           res => {
             if (res.includes('done')) {
               ElNotification({
@@ -210,7 +210,7 @@ export default {
 
       let stopServer = () => {
         cmd(
-          'cd ../slideServer && pm2 stop slideServer.js && cd ../damaiServer && pm2 stop damai.js',
+          'cd ../slideServer && pm2 stop slideServer.js && cd ../damaiServer && pm2 stop damaiCluster.js',
         );
       };
       return {
@@ -271,8 +271,8 @@ export default {
           name: 'isSuccess',
           isShow: false,
           options: [
-            {name: '是', id: true},
-            {name: '否', id: false},
+            { name: '是', id: true },
+            { name: '否', id: false },
           ],
           support: {
             query: {
@@ -285,7 +285,7 @@ export default {
           name: 'user',
           width: 100,
           valueType: 'slot',
-          rules: [{validator: this.validateUser, trigger: 'blur'}],
+          rules: [{ validator: this.validateUser, trigger: 'blur' }],
           support: {
             query: {},
             add: {},
@@ -434,8 +434,8 @@ export default {
             },
           },
           options: [
-            {id: true, name: '是'},
-            {id: false, name: '否'},
+            { id: true, name: '是' },
+            { id: false, name: '否' },
           ],
         },
 
@@ -454,7 +454,7 @@ export default {
   },
   computed: {
     title() {
-      let {activityName, username, targetTypes} = this.curRow || {};
+      let { activityName, username, targetTypes } = this.curRow || {};
       return `${username}__${activityName}_${targetTypes?.join('_')}`;
     },
   },
@@ -515,7 +515,7 @@ export default {
       delete this.pidInfo[this.cmd];
       this.getList();
     },
-    tableRowClassName({row, rowIndex}) {
+    tableRowClassName({ row, rowIndex }) {
       if (row.remark && row.remark.includes('频繁')) {
         return 'grey';
       }
@@ -536,7 +536,7 @@ export default {
       let config = obj[this.curRow.username];
       let res = await axios.post(
         'http://127.0.0.1:5000/copyUserFile',
-        {username: this.curRow.username, host: getRemoteIp(this.remotePc), config},
+        { username: this.curRow.username, host: getRemoteIp(this.remotePc), config },
         {
           timeout: 30000,
         },
@@ -572,7 +572,7 @@ export default {
       console.log(11111, row);
       this.remoteDialogVisible = true;
     },
-    beforeAssignToTable({records}) {
+    beforeAssignToTable({ records }) {
       this.tableData = records;
     },
     exit() {
@@ -582,10 +582,10 @@ export default {
     getList() {
       return this.$refs.table.getList();
     },
-    async copy({username}) {
-      let {value} = await ElMessageBox.prompt('', '输入新用户');
-      let {value: phone} = await ElMessageBox.prompt('', '用户手机号');
-      let {value: password} = await ElMessageBox.prompt('', '密码');
+    async copy({ username }) {
+      let { value } = await ElMessageBox.prompt('', '输入新用户');
+      let { value: phone } = await ElMessageBox.prompt('', '用户手机号');
+      let { value: password } = await ElMessageBox.prompt('', '密码');
 
       this.loading = true;
       await this.cmdCopy(value, username, phone, password);
@@ -625,20 +625,20 @@ export default {
       row.status = 1;
     },
     async handlerAdd(val) {
-      let obj = {targetTypes: [], ...val};
+      let obj = { targetTypes: [], ...val };
       if (obj.showOrders !== undefined) {
         obj.orders = String(obj.showOrders)
           .split(',')
           .map(one => Number(one));
         delete obj.showOrders;
       }
-      await this.updateFile({key: val.username, val: obj, isAdd: true});
+      await this.updateFile({ key: val.username, val: obj, isAdd: true });
       await this.getList();
       let target = this.tableData.find(one => one.username === val.username);
       this.start(target);
     },
     async handleEdit(val) {
-      let obj = {...val};
+      let obj = { ...val };
       let noSaveFields = ['ticketTypes', 'username', 'color', 'status', 'cmd', 'isWx'];
       noSaveFields.forEach(one => {
         delete obj[one];
@@ -656,7 +656,7 @@ export default {
       });
       await this.$refs.table.getList();
     },
-    async updateFile({key, val, isAdd}) {
+    async updateFile({ key, val, isAdd }) {
       let fileData = await this.getConfigFile();
       if (isAdd && fileData[key] !== undefined) {
         throw new Error('已经有了' + key);
@@ -666,7 +666,7 @@ export default {
     },
     async onDialogOpen(form) {
       let target = this.items.find(one => one.id === 'targetTypes');
-      target.options = (form.ticketTypes || []).map(one => ({id: one, name: one}));
+      target.options = (form.ticketTypes || []).map(one => ({ id: one, name: one }));
       return form;
     },
     async remove(obj, noShowConfirm) {
@@ -695,25 +695,25 @@ export default {
       return JSON.parse(str);
     },
 
-    async getData({queryItems}) {
+    async getData({ queryItems }) {
       try {
         let [activityInfo, obj] = await Promise.all([this.getActivityInfo(), this.getConfigFile()]);
- 
+
         let data = Object.entries(obj).map(([key, val]) => {
           let info = activityInfo[val.activityId];
-          console.log(111,info);
+          console.log(111, info);
           return {
             ...val,
             isWx: info ? info.isWx : null,
             activityName: info ? info.activityName : null,
-            ticketTypes: Object.values(info ? info.skuIdToTypeMap||[] : []),
+            ticketTypes: Object.values(info ? info.skuIdToTypeMap || [] : []),
             username: key,
           };
         });
 
         let items = queryItems.filter(item => item.value);
         data = data.filter(one => {
-          return items.every(({value, column}) => String(one[column]).indexOf(value) !== -1);
+          return items.every(({ value, column }) => String(one[column]).indexOf(value) !== -1);
         });
         data.sort((a, b) => Number(b.port) - Number(a.port));
 
